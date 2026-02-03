@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Получение документов пользователя",
+      "method": "GET",
+      "path": "/?userId=999",
+      "expectedStatus": 200,
+      "expectedBody": [],
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Добавление документа",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "userId": 1,
+        "type": "passport",
+        "number": "4512 234567"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "type": "passport"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

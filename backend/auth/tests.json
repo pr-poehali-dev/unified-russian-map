@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Регистрация нового пользователя",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "phone": "+79998887766",
+        "firstName": "Иван",
+        "lastName": "Петров"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "phone": "+79998887766"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Обновление данных пользователя",
+      "method": "PUT",
+      "path": "/",
+      "body": {
+        "userId": 1,
+        "firstName": "Петр",
+        "lastName": "Иванов",
+        "phone": "+79991234567"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

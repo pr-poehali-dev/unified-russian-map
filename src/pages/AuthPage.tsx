@@ -4,27 +4,59 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthPageProps {
-  onAuth: (data: { phone: string; firstName: string; lastName: string }) => void;
+  onAuth: (data: { id: number; phone: string; firstName: string; lastName: string; cardNumber: string }) => void;
 }
 
 export default function AuthPage({ onAuth }: AuthPageProps) {
   const [phone, setPhone] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent, isRegister: boolean) => {
     e.preventDefault();
-    if (phone && firstName && lastName) {
-      onAuth({ phone, firstName, lastName });
-    }
-  };
+    setLoading(true);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (phone) {
-      onAuth({ phone, firstName: 'Иван', lastName: 'Иванов' });
+    try {
+      const response = await fetch('https://functions.poehali.dev/70edf40e-d5b6-4019-a871-56ea66de4f61', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone,
+          firstName: isRegister ? firstName : 'Пользователь',
+          lastName: isRegister ? lastName : 'Системы'
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        onAuth({
+          id: data.id,
+          phone: data.phone,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          cardNumber: data.cardNumber
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось войти в систему',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Проблема с подключением к серверу',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,7 +82,7 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
             </TabsList>
 
             <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={(e) => handleAuth(e, false)} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">
                     Номер телефона
@@ -64,14 +96,14 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full h-12 bg-blue-900 hover:bg-blue-800 text-lg">
-                  Войти в систему
+                <Button type="submit" className="w-full h-12 bg-blue-900 hover:bg-blue-800 text-lg" disabled={loading}>
+                  {loading ? 'Вход...' : 'Войти в систему'}
                 </Button>
               </form>
             </TabsContent>
 
             <TabsContent value="register">
-              <form onSubmit={handleRegister} className="space-y-4">
+              <form onSubmit={(e) => handleAuth(e, true)} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">
                     Номер телефона
@@ -111,8 +143,8 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full h-12 bg-blue-900 hover:bg-blue-800 text-lg">
-                  Зарегистрироваться
+                <Button type="submit" className="w-full h-12 bg-blue-900 hover:bg-blue-800 text-lg" disabled={loading}>
+                  {loading ? 'Регистрация...' : 'Зарегистрироваться'}
                 </Button>
               </form>
             </TabsContent>
@@ -131,6 +163,7 @@ export default function AuthPage({ onAuth }: AuthPageProps) {
               type="button"
               variant="outline"
               className="w-full mt-4 h-12 border-2 hover:bg-yellow-50"
+              onClick={() => toast({ title: 'Скоро', description: 'Вход через Яндекс ID в разработке' })}
             >
               <Icon name="LogIn" className="mr-2" size={20} />
               Войти через Яндекс

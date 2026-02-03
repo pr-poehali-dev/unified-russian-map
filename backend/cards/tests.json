@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Получение карт пользователя",
+      "method": "GET",
+      "path": "/?userId=999",
+      "expectedStatus": 200,
+      "expectedBody": [],
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Добавление банковской карты",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "userId": 1,
+        "cardNumber": "4276380012345678",
+        "expiryDate": "12/25",
+        "cardHolder": "IVAN PETROV"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "cardNumber": "4276380012345678"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

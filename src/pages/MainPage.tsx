@@ -1,21 +1,19 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import DigitalCard from '@/components/DigitalCard';
 import DocumentsSection from '@/components/DocumentsSection';
+import ProfileSection from '@/components/ProfileSection';
+import type { UserData } from '@/App';
 
 interface MainPageProps {
-  userData: {
-    phone: string;
-    firstName: string;
-    lastName: string;
-  };
+  userData: UserData;
   onLogout: () => void;
 }
 
 export default function MainPage({ userData, onLogout }: MainPageProps) {
-  const [activeTab, setActiveTab] = useState<'card' | 'documents'>('card');
+  const [activeTab, setActiveTab] = useState<'card' | 'documents' | 'profile'>('card');
+  const [currentUserData, setCurrentUserData] = useState(userData);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -64,13 +62,31 @@ export default function MainPage({ userData, onLogout }: MainPageProps) {
               <Icon name="FileText" size={20} className="inline mr-2" />
               Документы
             </button>
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`px-6 py-4 font-medium transition-colors ${
+                activeTab === 'profile'
+                  ? 'text-blue-900 border-b-2 border-blue-900'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Icon name="User" size={20} className="inline mr-2" />
+              Профиль
+            </button>
           </div>
         </div>
       </nav>
 
       <main className="container mx-auto px-4 py-8">
-        {activeTab === 'card' && <DigitalCard userData={userData} />}
-        {activeTab === 'documents' && <DocumentsSection />}
+        {activeTab === 'card' && <DigitalCard userData={currentUserData} />}
+        {activeTab === 'documents' && <DocumentsSection userId={currentUserData.id} />}
+        {activeTab === 'profile' && (
+          <ProfileSection 
+            userData={currentUserData} 
+            onUpdate={setCurrentUserData}
+            onLogout={onLogout}
+          />
+        )}
       </main>
     </div>
   );
